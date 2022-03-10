@@ -22,12 +22,19 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/golang/glog"
 )
 
 const thermostatAPIURL = `https://api.ecobee.com/1/thermostat`
 const thermostatSummaryURL = `https://api.ecobee.com/1/thermostatSummary`
+const runtimeReportURL = `https://api.ecobee.com/1/runtimeReport`
+
+type RuntimeReportDataEntry struct {
+		    ReportTime time.Time
+		DataFields map[string]string
+		}
 
 func (c *Client) UpdateThermostat(utr UpdateThermostatRequest) error {
 	j, err := json.Marshal(&utr)
@@ -171,6 +178,225 @@ func (c *Client) GetThermostatSummary(selection Selection) (map[string]Thermosta
 		tsm[rl[0]] = ts
 	}
 	return tsm, nil
+}
+
+
+
+func (c *Client) GetRuntimeReport(thermostatID string, WriteHumidifier bool,
+WriteAuxHeat1 bool,
+WriteAuxHeat2 bool,
+WriteHeatPump1 bool,
+WriteHeatPump2 bool,
+WriteCool1 bool,
+WriteCool2 bool,
+) (map[string]interface{}, error) {
+	s := Selection{
+		SelectionType:  "thermostats",
+		SelectionMatch: thermostatID,
+
+		IncludeAlerts:          false,
+		IncludeEvents:          true,
+		IncludeProgram:         true,
+		IncludeRuntime:         true,
+		IncludeExtendedRuntime: true,
+		IncludeSettings:        false,
+		IncludeSensors:         true,
+		IncludeWeather:         true,
+	}
+
+	// Need to create a CSV of columns we want in the report
+	var col_to_include []string = []string{"zoneCoolTemp", "zoneHeatTemp", "zoneAveTemp", "zoneHumidity", "outdoorTemp", "outdoorHumidity", "fan"}
+	if WriteHumidifier {
+		col_to_include = append(col_to_include, "humidifier")
+	}
+	if WriteAuxHeat1 {
+		col_to_include = append(col_to_include, "auxHeat1")
+	}
+	if WriteAuxHeat2 {
+		col_to_include = append(col_to_include, "auxHeat2")
+	}
+	if WriteHeatPump1 {
+		col_to_include = append(col_to_include, "compHeat1")
+	}
+	if WriteCool1 {
+		col_to_include = append(col_to_include, "compCool1")
+	}
+	if WriteCool2 {
+		col_to_include = append(col_to_include, "compCool2")
+	}
+	cols := strings.Join(col_to_include[:], ",")
+
+	req := GetRuntimeReportRequest{
+		Selection: s,
+		StartDate: "2022-02-16",
+		EndDate: "2022-02-16",
+		Columns: cols,
+	}
+	j, err := json.Marshal(&req)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling json: %v", err)
+		// return fmt.Errorf("error marshaling json: %v", err)
+	}
+
+	body, err := c.get(runtimeReportURL, j)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching thermostat summary: %v", err)
+		// return fmt.Errorf("error fetching thermostat summary: %v", err)
+	}
+
+	var r RuntimeReportResponse
+	if err = json.Unmarshal(body, &r); err != nil {
+		return nil, fmt.Errorf("error unmarshalling json: %v", err)
+		// return fmt.Errorf("error unmarshalling json: %v", err)
+	}
+
+	glog.V(1).Infof("GetThermostatSummary response: %#v", r)
+
+
+	// fmt.Printf("\n\n%v\n\n", r)
+
+
+				// Get the UTC time this report starts at.
+				utc_start_time, err := time.Parse("2006-01-02",r.StartDate)
+				if err != nil {
+					return nil, err
+				}
+				// Need to add the 5 minute interval to get the actual start time.
+				utc_start_time = utc_start_time.Add(time.Duration(r.StartInterval * 5) * time.Minute )
+
+received_columns := strings.Split(r.Columns, ",")
+
+
+
+// type RuntimeReportFormatted struct {
+// 	reportTime string
+// 	fields map[string]
+// }
+
+report_data := map[string]interface{}{
+					}
+
+
+for _, report := range r.ReportList {
+
+	// Get the first row to calculate the time offset between the thermostat
+	// time and UTC. We assume the first entry matches the start time.
+	fields := strings.Split(report.RowList[0], ",")
+	d := fields[0]
+	t := fields[1]
+	entry_thermostat_time, _ := time.Parse("2006-01-02 15:04:05", fmt.Sprintf("%s %s", d, t))
+	time_offset := utc_start_time.Sub(entry_thermostat_time)
+
+	// data := []map[string]interface{}{}
+	//
+	// type abc struct {
+	// 	reportTime time.Time
+	// 	d map[string]string
+	// }
+	data := []RuntimeReportDataEntry{}
+	// data := []struct {
+	// 	reportTime time.Time
+	// 	d map[string]string
+	// }{}
+	// data := []struct{time.Time; string}{}
+
+	// Now we can iterate all of the data rows.
+	for _, entry := range report.RowList {
+		fmt.Printf("%s\n", entry);
+		fields := strings.Split(entry, ",")
+		d := fields[0]
+		t := fields[1]
+
+		entry_time, _ := time.Parse("2006-01-02 15:04:05", fmt.Sprintf("%s %s", d, t))
+		entry_time = entry_time.Add(time_offset)
+
+		fmt.Printf("%s %s (%s) (%v):\n", d, t, fmt.Sprintf("%s %s", d, t), entry_time)
+
+		// formatted_entry := map[string]interface{}{
+		// 						"reportTime":        entry_time,
+		// 					}
+		formatted_entry := map[string]string{
+							}
+
+
+
+
+		for i, col := range received_columns {
+
+			// val, _ := strconv.Atoi(fields[i+2])
+
+			formatted_entry[col] = fields[i+2]
+
+
+			fmt.Printf("  %s: %d\n", col, fields[i+2])
+		}
+
+		tmp := RuntimeReportDataEntry {
+			ReportTime: entry_time,
+			DataFields: formatted_entry,
+		}
+
+		// tmp := struct {
+		//     reportTime time.Time
+		// d map[string]string
+		// }{
+		//     reportTime: entry_time,
+		// 	d: formatted_entry,
+		// }
+
+	// 	tmp struct {
+	// 	reportTime time.Time
+	// 	d map[string]string
+	// } = struct {
+	// 		reportTime: entry_time,
+	// 		d: formatted_entry,
+	// 	}
+		data = append(data, tmp)
+		// data = append(data,  {
+		// 	reportTime: entry_time,
+		// 	d: formatted_entry,
+		// })
+	}
+
+	report_data[report.ThermostatIdentifier] = data
+}
+
+
+
+	return report_data, nil
+
+	// var tsm = make(ThermostatSummaryMap, r.ThermostatCount)
+
+	// for i := 0; i < r.ThermostatCount; i++ {
+	// 	rl := strings.Split(r.RevisionList[i], ":")
+	// 	if len(rl) < 7 {
+	// 		return nil, fmt.Errorf("invalid RevisionList, not enough fields: %s", r.RevisionList[i])
+	// 	}
+
+	// 	// Assume order of RevisionList and StatusList is the same.
+	// 	es, err := buildEquipmentStatus(r.StatusList[i])
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("error in buildEquipmentSTatus(%v): %v", r.StatusList[i], err)
+	// 	}
+
+	// 	connected, err := strconv.ParseBool(rl[2])
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("error from ParseBool(%v): %v", rl[2], err)
+	// 	}
+
+	// 	ts := ThermostatSummary{
+	// 		Identifier:         rl[0],
+	// 		Name:               rl[1],
+	// 		Connected:          connected,
+	// 		ThermostatRevision: rl[3],
+	// 		AlertsRevision:     rl[4],
+	// 		RuntimeRevision:    rl[5],
+	// 		IntervalRevision:   rl[6],
+	// 		EquipmentStatus:    es,
+	// 	}
+	// 	tsm[rl[0]] = ts
+	// }
+	// return tsm, nil
 }
 
 func (c *Client) get(endpoint string, rawRequest []byte) ([]byte, error) {
