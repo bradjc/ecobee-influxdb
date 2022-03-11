@@ -180,10 +180,12 @@ func (c *Client) GetThermostatSummary(selection Selection) (map[string]Thermosta
 	return tsm, nil
 }
 
-func (c *Client) GetRuntimeReport(thermostatID string, WriteHumidifier bool,
+func (c *Client) GetRuntimeReport(
+	thermostatID string,
+	WriteHumidifier bool,
 	WriteAuxHeat1 bool,
 	WriteAuxHeat2 bool,
-	    WriteHeatPump1 bool,
+	WriteHeatPump1 bool,
 	WriteHeatPump2 bool,
 	WriteCool1 bool,
 	WriteCool2 bool,
