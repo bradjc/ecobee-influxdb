@@ -29,7 +29,7 @@ func (c *Client) ResumeProgram(id string, resumeAll bool) error {
 			SelectionMatch: id,
 		},
 		Functions: []Function{
-			Function{
+			{
 				Type: "resumeProgram",
 				Params: ResumeProgramParams{
 					ResumeAll: resumeAll,
@@ -63,7 +63,7 @@ func (c *Client) RunFan(id string, duration time.Duration) error {
 			SelectionMatch: id,
 		},
 		Functions: []Function{
-			Function{
+			{
 				Type:   "setHold",
 				Params: shp,
 			},
@@ -88,7 +88,7 @@ func (c *Client) SendMessage(thermostat, message string) error {
 			SelectionMatch: thermostat,
 		},
 		Functions: []Function{
-			Function{
+			{
 				Type:   "sendMessage",
 				Params: smp,
 			},
@@ -110,7 +110,7 @@ func tempCheck(heat, cool float64) error {
 	// function in order to mitigate against the desired setpointsld
 	// being adjusted by the server when the values are not within the
 	// valid ranges.
-	//DesiredHeatRange:[]int{450, 860}, DesiredCoolRange:[]int{600, 920}}}
+	// DesiredHeatRange:[]int{450, 860}, DesiredCoolRange:[]int{600, 920}}}
 
 	if heat == 0 {
 		return fmt.Errorf("heat must not be 0")
@@ -161,7 +161,7 @@ func (c *Client) HoldTemp(thermostat string, heat, cool float64, d time.Duration
 			SelectionMatch: thermostat,
 		},
 		Functions: []Function{
-			Function{
+			{
 				Type:   "setHold",
 				Params: shp,
 			},

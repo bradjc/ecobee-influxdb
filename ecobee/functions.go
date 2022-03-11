@@ -27,9 +27,11 @@ import (
 	"github.com/golang/glog"
 )
 
-const thermostatAPIURL = `https://api.ecobee.com/1/thermostat`
-const thermostatSummaryURL = `https://api.ecobee.com/1/thermostatSummary`
-const runtimeReportURL = `https://api.ecobee.com/1/runtimeReport`
+const (
+	thermostatAPIURL     = `https://api.ecobee.com/1/thermostat`
+	thermostatSummaryURL = `https://api.ecobee.com/1/thermostatSummary`
+	runtimeReportURL     = `https://api.ecobee.com/1/runtimeReport`
+)
 
 type RuntimeReportDataEntry struct {
 	ReportTime time.Time
@@ -146,7 +148,7 @@ func (c *Client) GetThermostatSummary(selection Selection) (map[string]Thermosta
 
 	glog.V(1).Infof("GetThermostatSummary response: %#v", r)
 
-	var tsm = make(ThermostatSummaryMap, r.ThermostatCount)
+	tsm := make(ThermostatSummaryMap, r.ThermostatCount)
 
 	for i := 0; i < r.ThermostatCount; i++ {
 		rl := strings.Split(r.RevisionList[i], ":")
@@ -312,7 +314,6 @@ func (c *Client) GetRuntimeReport(
 			formatted_entry := map[string]string{}
 
 			for i, col := range received_columns {
-
 				// val, _ := strconv.Atoi(fields[i+2])
 
 				// If empty, skip over.
@@ -390,7 +391,6 @@ func (c *Client) GetRuntimeReport(
 }
 
 func (c *Client) get(endpoint string, rawRequest []byte) ([]byte, error) {
-
 	glog.V(2).Infof("get(%s?json=%s)", endpoint, rawRequest)
 	request := url.QueryEscape(string(rawRequest))
 	resp, err := c.Get(fmt.Sprintf("%s?json=%s", endpoint, request))
@@ -439,7 +439,6 @@ func buildEquipmentStatus(input string) (EquipmentStatus, error) {
 }
 
 func (es *EquipmentStatus) Set(field string, state bool) {
-
 	switch field {
 	case "heatPump":
 		es.HeatPump = state
@@ -472,5 +471,4 @@ func (es *EquipmentStatus) Set(field string, state bool) {
 	case "auxHotWater":
 		es.AuxHotWater = state
 	}
-
 }

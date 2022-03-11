@@ -147,8 +147,8 @@ type Thermostat struct {
 	LastModified   string `json:"lastModified"`
 	ThermostatTime string `json:"thermostatTime"`
 	UtcTime        string `json:"utcTime"`
-	//Alerts         []Alert  `json:"alerts"`
-	//Settings       Settings `json:"settings"`
+	// Alerts         []Alert  `json:"alerts"`
+	// Settings       Settings `json:"settings"`
 	Runtime         Runtime         `json:"runtime"`
 	ExtendedRuntime ExtendedRuntime `json:"extendedRuntime"`
 	/// ...

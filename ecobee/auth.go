@@ -62,7 +62,7 @@ func (ts *tokenSource) save() error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(ts.cacheFile, d, 0777)
+	err = ioutil.WriteFile(ts.cacheFile, d, 0o777)
 	return err
 }
 
@@ -145,6 +145,7 @@ func (ts *tokenSource) accessToken(code string) error {
 		"code":       {code},
 	})
 }
+
 func (ts *tokenSource) refreshToken() error {
 	return ts.getToken(url.Values{
 		"grant_type":    {"refresh_token"},

@@ -81,8 +81,8 @@ func IndoorHumidityRecommendation(outdoorTempF float64) int {
 }
 
 func main() {
-	var configFile = flag.String("config", "", "Configuration JSON file.")
-	var listThermostats = flag.Bool("list-thermostats", false, "List available thermostats, then exit.")
+	configFile := flag.String("config", "", "Configuration JSON file.")
+	listThermostats := flag.Bool("list-thermostats", false, "List available thermostats, then exit.")
 	flag.Parse()
 
 	if *configFile == "" {
@@ -327,12 +327,13 @@ func main() {
 
 				for thermostat_id, entries := range report_data {
 
-					var meta = map[string]string{
+					meta := map[string]string{
 						// 	"thermostat_name": t.Name,
 						// "thermostat_model": t.ModelNumber,
 						// "thermostat_brand": t.Brand,
 						"device_id": fmt.Sprintf("ecobee-%s", thermostat_id),
-						"receiver":  "ecobee-influx-connector"}
+						"receiver":  "ecobee-influx-connector",
+					}
 
 					bp, _ := influxclient.NewBatchPoints(influxclient.BatchPointsConfig{Database: config.InfluxDatabase})
 
@@ -348,7 +349,6 @@ func main() {
 					// 	d map[string]string
 					// }); ok {
 					if entries_ok, ok := entries.([]ecobee.RuntimeReportDataEntry); ok {
-
 						for _, entry := range entries_ok {
 							// for i := range len(entries) {
 							// entry := entries[i]
@@ -410,7 +410,6 @@ func main() {
 								// 		reportTime = val_ok
 								// 	}
 								// }
-
 							}
 							// }
 
@@ -420,7 +419,7 @@ func main() {
 
 							// fmt.Printf("%v", fields);
 
-							var pt, _ = influxclient.NewPoint("ecobee_runtime_test3", meta, fields, entry.ReportTime)
+							pt, _ := influxclient.NewPoint("ecobee_runtime_test3", meta, fields, entry.ReportTime)
 							bp.AddPoint(pt)
 							// fmt.Printf("added point %v\n", entry.ReportTime);
 
@@ -428,7 +427,6 @@ func main() {
 					}
 
 					err := influxClient.Write(bp)
-
 					if err != nil {
 						fmt.Printf("ERROR writing\n")
 						fmt.Printf("Unexpected error during Write: %v", err)
