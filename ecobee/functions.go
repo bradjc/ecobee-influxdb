@@ -182,8 +182,13 @@ func (c *Client) GetThermostatSummary(selection Selection) (map[string]Thermosta
 	return tsm, nil
 }
 
+// This gets historical data from the beginning of `startDate` (UTC) to the end
+// of `endDate` (UTC). The dates should be in format "YYYY-MM-DD".
+// `thermostatID` is a comma separated list of thermostat IDs to get data for.
 func (c *Client) GetRuntimeReport(
 	thermostatID string,
+	startDate string,
+	endDate string,
 	WriteHumidifier bool,
 	WriteAuxHeat1 bool,
 	WriteAuxHeat2 bool,
@@ -207,7 +212,15 @@ func (c *Client) GetRuntimeReport(
 	}
 
 	// Need to create a CSV of columns we want in the report
-	var col_to_include []string = []string{"zoneCoolTemp", "zoneHeatTemp", "zoneAveTemp", "zoneHumidity", "outdoorTemp", "outdoorHumidity", "fan"}
+	var col_to_include []string = []string{
+		"zoneCoolTemp",
+		"zoneHeatTemp",
+		"zoneAveTemp",
+		"zoneHumidity",
+		"outdoorTemp",
+		"outdoorHumidity",
+		"hvacMode",
+		"fan"}
 	if WriteHumidifier {
 		col_to_include = append(col_to_include, "humidifier")
 	}
@@ -230,31 +243,27 @@ func (c *Client) GetRuntimeReport(
 
 	req := GetRuntimeReportRequest{
 		Selection: s,
-		StartDate: "2022-01-15",
-		EndDate:   "2022-01-31",
+		StartDate: startDate,
+		EndDate:   endDate,
 		Columns:   cols,
+		IncludeSensors: true,
 	}
 	j, err := json.Marshal(&req)
 	if err != nil {
 		return nil, fmt.Errorf("error marshaling json: %v", err)
-		// return fmt.Errorf("error marshaling json: %v", err)
 	}
 
 	body, err := c.get(runtimeReportURL, j)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching thermostat summary: %v", err)
-		// return fmt.Errorf("error fetching thermostat summary: %v", err)
 	}
 
 	var r RuntimeReportResponse
 	if err = json.Unmarshal(body, &r); err != nil {
 		return nil, fmt.Errorf("error unmarshalling json: %v", err)
-		// return fmt.Errorf("error unmarshalling json: %v", err)
 	}
 
 	glog.V(1).Infof("GetThermostatSummary response: %#v", r)
-
-	// fmt.Printf("\n\n%v\n\n", r)
 
 	// Get the UTC time this report starts at.
 	utc_start_time, err := time.Parse("2006-01-02", r.StartDate)
@@ -266,13 +275,10 @@ func (c *Client) GetRuntimeReport(
 
 	received_columns := strings.Split(r.Columns, ",")
 
-	// type RuntimeReportFormatted struct {
-	// 	reportTime string
-	// 	fields map[string]
-	// }
-
+	// Object to return to the caller.
 	report_data := map[string]interface{}{}
 
+	// Iterate each report in the response. This is per thermostat.
 	for _, report := range r.ReportList {
 
 		// Get the first row to calculate the time offset between the thermostat
@@ -283,44 +289,30 @@ func (c *Client) GetRuntimeReport(
 		entry_thermostat_time, _ := time.Parse("2006-01-02 15:04:05", fmt.Sprintf("%s %s", d, t))
 		time_offset := utc_start_time.Sub(entry_thermostat_time)
 
-		// data := []map[string]interface{}{}
-		//
-		// type abc struct {
-		// 	reportTime time.Time
-		// 	d map[string]string
-		// }
+		// List of measurements in an interval.
 		data := []RuntimeReportDataEntry{}
-		// data := []struct {
-		// 	reportTime time.Time
-		// 	d map[string]string
-		// }{}
-		// data := []struct{time.Time; string}{}
 
 		// Now we can iterate all of the data rows.
 		for _, entry := range report.RowList {
 			// fmt.Printf("%s\n", entry)
 			fields := strings.Split(entry, ",")
+			// First is date.
 			d := fields[0]
+			// Second is time.
 			t := fields[1]
 
+			// Get the interval time in UTC.
 			entry_time, _ := time.Parse("2006-01-02 15:04:05", fmt.Sprintf("%s %s", d, t))
 			entry_time = entry_time.Add(time_offset)
 
 			// fmt.Printf("%s %s (%s) (%v):\n", d, t, fmt.Sprintf("%s %s", d, t), entry_time)
 
-			// formatted_entry := map[string]interface{}{
-			// 						"reportTime":        entry_time,
-			// 					}
+			// Collect all of the measurements.
 			formatted_entry := map[string]string{}
-
 			for i, col := range received_columns {
-				// val, _ := strconv.Atoi(fields[i+2])
-
 				// If empty, skip over.
 				if len(fields[i+2]) > 0 {
 					formatted_entry[col] = fields[i+2]
-
-					// fmt.Printf("  %s: %d\n", col, fields[i+2])
 				}
 			}
 
@@ -329,65 +321,13 @@ func (c *Client) GetRuntimeReport(
 				DataFields: formatted_entry,
 			}
 
-			// tmp := struct {
-			//     reportTime time.Time
-			// d map[string]string
-			// }{
-			//     reportTime: entry_time,
-			// 	d: formatted_entry,
-			// }
-
-			// 	tmp struct {
-			// 	reportTime time.Time
-			// 	d map[string]string
-			// } = struct {
-			// 		reportTime: entry_time,
-			// 		d: formatted_entry,
-			// 	}
 			data = append(data, tmp)
-			// data = append(data,  {
-			// 	reportTime: entry_time,
-			// 	d: formatted_entry,
-			// })
 		}
 
 		report_data[report.ThermostatIdentifier] = data
 	}
 
 	return report_data, nil
-
-	// var tsm = make(ThermostatSummaryMap, r.ThermostatCount)
-
-	// for i := 0; i < r.ThermostatCount; i++ {
-	// 	rl := strings.Split(r.RevisionList[i], ":")
-	// 	if len(rl) < 7 {
-	// 		return nil, fmt.Errorf("invalid RevisionList, not enough fields: %s", r.RevisionList[i])
-	// 	}
-
-	// 	// Assume order of RevisionList and StatusList is the same.
-	// 	es, err := buildEquipmentStatus(r.StatusList[i])
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("error in buildEquipmentSTatus(%v): %v", r.StatusList[i], err)
-	// 	}
-
-	// 	connected, err := strconv.ParseBool(rl[2])
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("error from ParseBool(%v): %v", rl[2], err)
-	// 	}
-
-	// 	ts := ThermostatSummary{
-	// 		Identifier:         rl[0],
-	// 		Name:               rl[1],
-	// 		Connected:          connected,
-	// 		ThermostatRevision: rl[3],
-	// 		AlertsRevision:     rl[4],
-	// 		RuntimeRevision:    rl[5],
-	// 		IntervalRevision:   rl[6],
-	// 		EquipmentStatus:    es,
-	// 	}
-	// 	tsm[rl[0]] = ts
-	// }
-	// return tsm, nil
 }
 
 func (c *Client) get(endpoint string, rawRequest []byte) ([]byte, error) {

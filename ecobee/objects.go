@@ -224,6 +224,7 @@ type GetRuntimeReportRequest struct {
 	StartDate string    `json:"startDate"`
 	EndDate   string    `json:"endDate"`
 	Columns   string    `json:"columns"`
+	IncludeSensors bool `json"includeSensors"`
 }
 
 type RuntimeReportResponse struct {
