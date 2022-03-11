@@ -220,7 +220,8 @@ func (c *Client) GetRuntimeReport(
 		"outdoorTemp",
 		"outdoorHumidity",
 		"hvacMode",
-		"fan"}
+		"fan",
+	}
 	if WriteHumidifier {
 		col_to_include = append(col_to_include, "humidifier")
 	}
@@ -242,10 +243,10 @@ func (c *Client) GetRuntimeReport(
 	cols := strings.Join(col_to_include[:], ",")
 
 	req := GetRuntimeReportRequest{
-		Selection: s,
-		StartDate: startDate,
-		EndDate:   endDate,
-		Columns:   cols,
+		Selection:      s,
+		StartDate:      startDate,
+		EndDate:        endDate,
+		Columns:        cols,
 		IncludeSensors: true,
 	}
 	j, err := json.Marshal(&req)

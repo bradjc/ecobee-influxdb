@@ -133,7 +133,6 @@ func main() {
 		log.Fatalf("influx_server must be set in the config file.")
 	}
 
-
 	// Influx
 	const influxTimeout = 3 * time.Second
 
@@ -142,9 +141,6 @@ func main() {
 		Username: config.InfluxUser,
 		Password: config.InfluxPass,
 	})
-
-
-
 
 	doUpdate := func(start_str string, end_str string) {
 		if err := retry.Do(
@@ -170,7 +166,7 @@ func main() {
 				thermostat_metadata := map[string]map[string]string{}
 				for _, t := range thermostats {
 					meta := map[string]string{
-						"thermostat_name": t.Name,
+						"thermostat_name":  t.Name,
 						"thermostat_model": t.ModelNumber,
 						"thermostat_brand": t.Brand,
 					}
@@ -201,7 +197,7 @@ func main() {
 
 					// Copy in the thermostat data from the getThermostats call.
 					for k, v := range thermostat_metadata[thermostat_id] {
-					    meta[k] = v
+						meta[k] = v
 					}
 
 					bp, _ := influxclient.NewBatchPoints(influxclient.BatchPointsConfig{Database: config.InfluxDatabase})
@@ -252,7 +248,7 @@ func main() {
 						}
 					}
 
-					fmt.Printf("writing\n");
+					fmt.Printf("writing\n")
 
 					err := influxClient.Write(bp)
 					if err != nil {
@@ -270,11 +266,9 @@ func main() {
 			log.Fatal(err)
 		} else {
 			// Update collected time.
-			_ = ioutil.WriteFile("./last_data.txt", []byte(end_str + "\n"), 0644)
-
+			_ = ioutil.WriteFile("./last_data.txt", []byte(end_str+"\n"), 0o644)
 		}
 	}
-
 
 	for true {
 		// Get the date of the last day we have gotten data for.
@@ -283,7 +277,7 @@ func main() {
 
 		// See if there is a day that is over that we have not gotten data for yet.
 		now := time.Now()
-		yesterday_time := now.Add(-24*time.Hour)
+		yesterday_time := now.Add(-24 * time.Hour)
 		yesterday_string := yesterday_time.Format("2006-01-02")
 
 		left_off, _ := time.Parse("2006-01-02", lastData)
@@ -299,9 +293,9 @@ func main() {
 		// There is data we need to collect and push to influx.
 
 		// Start date is the day after the last day, starting at midnight.
-		start := left_off.Add(24*time.Hour)
+		start := left_off.Add(24 * time.Hour)
 		// See if we can do up to 2 weeks of data.
-		projected_end := start.Add(14*24*time.Hour)
+		projected_end := start.Add(14 * 24 * time.Hour)
 		end := projected_end
 		if projected_end.After(yesterday) {
 			// Projected end is into the future. So we just go up until yesterday.
@@ -319,6 +313,4 @@ func main() {
 		// Wait 3 seconds.
 		time.Sleep(3 * time.Second)
 	}
-
-
 }

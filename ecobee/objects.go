@@ -220,11 +220,11 @@ type GetThermostatsResponse struct {
 }
 
 type GetRuntimeReportRequest struct {
-	Selection Selection `json:"selection"`
-	StartDate string    `json:"startDate"`
-	EndDate   string    `json:"endDate"`
-	Columns   string    `json:"columns"`
-	IncludeSensors bool `json"includeSensors"`
+	Selection      Selection `json:"selection"`
+	StartDate      string    `json:"startDate"`
+	EndDate        string    `json:"endDate"`
+	Columns        string    `json:"columns"`
+	IncludeSensors bool      `json"includeSensors"`
 }
 
 type RuntimeReportResponse struct {
