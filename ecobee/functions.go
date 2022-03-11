@@ -32,9 +32,9 @@ const thermostatSummaryURL = `https://api.ecobee.com/1/thermostatSummary`
 const runtimeReportURL = `https://api.ecobee.com/1/runtimeReport`
 
 type RuntimeReportDataEntry struct {
-		    ReportTime time.Time
-		DataFields map[string]string
-		}
+	ReportTime time.Time
+	DataFields map[string]string
+}
 
 func (c *Client) UpdateThermostat(utr UpdateThermostatRequest) error {
 	j, err := json.Marshal(&utr)
@@ -180,15 +180,13 @@ func (c *Client) GetThermostatSummary(selection Selection) (map[string]Thermosta
 	return tsm, nil
 }
 
-
-
 func (c *Client) GetRuntimeReport(thermostatID string, WriteHumidifier bool,
-WriteAuxHeat1 bool,
-WriteAuxHeat2 bool,
-WriteHeatPump1 bool,
-WriteHeatPump2 bool,
-WriteCool1 bool,
-WriteCool2 bool,
+	WriteAuxHeat1 bool,
+	WriteAuxHeat2 bool,
+	    WriteHeatPump1 bool,
+	WriteHeatPump2 bool,
+	WriteCool1 bool,
+	WriteCool2 bool,
 ) (map[string]interface{}, error) {
 	s := Selection{
 		SelectionType:  "thermostats",
@@ -228,9 +226,9 @@ WriteCool2 bool,
 
 	req := GetRuntimeReportRequest{
 		Selection: s,
-		StartDate: "2022-02-16",
-		EndDate: "2022-02-16",
-		Columns: cols,
+		StartDate: "2022-01-15",
+		EndDate:   "2022-01-31",
+		Columns:   cols,
 	}
 	j, err := json.Marshal(&req)
 	if err != nil {
@@ -252,116 +250,106 @@ WriteCool2 bool,
 
 	glog.V(1).Infof("GetThermostatSummary response: %#v", r)
 
-
 	// fmt.Printf("\n\n%v\n\n", r)
 
+	// Get the UTC time this report starts at.
+	utc_start_time, err := time.Parse("2006-01-02", r.StartDate)
+	if err != nil {
+		return nil, err
+	}
+	// Need to add the 5 minute interval to get the actual start time.
+	utc_start_time = utc_start_time.Add(time.Duration(r.StartInterval*5) * time.Minute)
 
-				// Get the UTC time this report starts at.
-				utc_start_time, err := time.Parse("2006-01-02",r.StartDate)
-				if err != nil {
-					return nil, err
-				}
-				// Need to add the 5 minute interval to get the actual start time.
-				utc_start_time = utc_start_time.Add(time.Duration(r.StartInterval * 5) * time.Minute )
+	received_columns := strings.Split(r.Columns, ",")
 
-received_columns := strings.Split(r.Columns, ",")
-
-
-
-// type RuntimeReportFormatted struct {
-// 	reportTime string
-// 	fields map[string]
-// }
-
-report_data := map[string]interface{}{
-					}
-
-
-for _, report := range r.ReportList {
-
-	// Get the first row to calculate the time offset between the thermostat
-	// time and UTC. We assume the first entry matches the start time.
-	fields := strings.Split(report.RowList[0], ",")
-	d := fields[0]
-	t := fields[1]
-	entry_thermostat_time, _ := time.Parse("2006-01-02 15:04:05", fmt.Sprintf("%s %s", d, t))
-	time_offset := utc_start_time.Sub(entry_thermostat_time)
-
-	// data := []map[string]interface{}{}
-	//
-	// type abc struct {
-	// 	reportTime time.Time
-	// 	d map[string]string
+	// type RuntimeReportFormatted struct {
+	// 	reportTime string
+	// 	fields map[string]
 	// }
-	data := []RuntimeReportDataEntry{}
-	// data := []struct {
-	// 	reportTime time.Time
-	// 	d map[string]string
-	// }{}
-	// data := []struct{time.Time; string}{}
 
-	// Now we can iterate all of the data rows.
-	for _, entry := range report.RowList {
-		fmt.Printf("%s\n", entry);
-		fields := strings.Split(entry, ",")
+	report_data := map[string]interface{}{}
+
+	for _, report := range r.ReportList {
+
+		// Get the first row to calculate the time offset between the thermostat
+		// time and UTC. We assume the first entry matches the start time.
+		fields := strings.Split(report.RowList[0], ",")
 		d := fields[0]
 		t := fields[1]
+		entry_thermostat_time, _ := time.Parse("2006-01-02 15:04:05", fmt.Sprintf("%s %s", d, t))
+		time_offset := utc_start_time.Sub(entry_thermostat_time)
 
-		entry_time, _ := time.Parse("2006-01-02 15:04:05", fmt.Sprintf("%s %s", d, t))
-		entry_time = entry_time.Add(time_offset)
-
-		fmt.Printf("%s %s (%s) (%v):\n", d, t, fmt.Sprintf("%s %s", d, t), entry_time)
-
-		// formatted_entry := map[string]interface{}{
-		// 						"reportTime":        entry_time,
-		// 					}
-		formatted_entry := map[string]string{
-							}
-
-
-
-
-		for i, col := range received_columns {
-
-			// val, _ := strconv.Atoi(fields[i+2])
-
-			formatted_entry[col] = fields[i+2]
-
-
-			fmt.Printf("  %s: %d\n", col, fields[i+2])
-		}
-
-		tmp := RuntimeReportDataEntry {
-			ReportTime: entry_time,
-			DataFields: formatted_entry,
-		}
-
-		// tmp := struct {
-		//     reportTime time.Time
-		// d map[string]string
-		// }{
-		//     reportTime: entry_time,
-		// 	d: formatted_entry,
+		// data := []map[string]interface{}{}
+		//
+		// type abc struct {
+		// 	reportTime time.Time
+		// 	d map[string]string
 		// }
+		data := []RuntimeReportDataEntry{}
+		// data := []struct {
+		// 	reportTime time.Time
+		// 	d map[string]string
+		// }{}
+		// data := []struct{time.Time; string}{}
 
-	// 	tmp struct {
-	// 	reportTime time.Time
-	// 	d map[string]string
-	// } = struct {
-	// 		reportTime: entry_time,
-	// 		d: formatted_entry,
-	// 	}
-		data = append(data, tmp)
-		// data = append(data,  {
-		// 	reportTime: entry_time,
-		// 	d: formatted_entry,
-		// })
+		// Now we can iterate all of the data rows.
+		for _, entry := range report.RowList {
+			// fmt.Printf("%s\n", entry)
+			fields := strings.Split(entry, ",")
+			d := fields[0]
+			t := fields[1]
+
+			entry_time, _ := time.Parse("2006-01-02 15:04:05", fmt.Sprintf("%s %s", d, t))
+			entry_time = entry_time.Add(time_offset)
+
+			// fmt.Printf("%s %s (%s) (%v):\n", d, t, fmt.Sprintf("%s %s", d, t), entry_time)
+
+			// formatted_entry := map[string]interface{}{
+			// 						"reportTime":        entry_time,
+			// 					}
+			formatted_entry := map[string]string{}
+
+			for i, col := range received_columns {
+
+				// val, _ := strconv.Atoi(fields[i+2])
+
+				// If empty, skip over.
+				if len(fields[i+2]) > 0 {
+					formatted_entry[col] = fields[i+2]
+
+					// fmt.Printf("  %s: %d\n", col, fields[i+2])
+				}
+			}
+
+			tmp := RuntimeReportDataEntry{
+				ReportTime: entry_time,
+				DataFields: formatted_entry,
+			}
+
+			// tmp := struct {
+			//     reportTime time.Time
+			// d map[string]string
+			// }{
+			//     reportTime: entry_time,
+			// 	d: formatted_entry,
+			// }
+
+			// 	tmp struct {
+			// 	reportTime time.Time
+			// 	d map[string]string
+			// } = struct {
+			// 		reportTime: entry_time,
+			// 		d: formatted_entry,
+			// 	}
+			data = append(data, tmp)
+			// data = append(data,  {
+			// 	reportTime: entry_time,
+			// 	d: formatted_entry,
+			// })
+		}
+
+		report_data[report.ThermostatIdentifier] = data
 	}
-
-	report_data[report.ThermostatIdentifier] = data
-}
-
-
 
 	return report_data, nil
 

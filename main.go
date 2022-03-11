@@ -142,11 +142,11 @@ func main() {
 	// }
 	// _ = authString;
 	influxClient, err := influxclient.NewHTTPClient(influxclient.HTTPConfig{
-		Addr: config.InfluxServer,
+		Addr:     config.InfluxServer,
 		Username: config.InfluxUser,
 		Password: config.InfluxPass,
 	})
-	_ = influxClient;
+	_ = influxClient
 	// influxClient := influxdb2.NewClient(config.InfluxServer, authString)
 	// if !config.InfluxHealthCheckDisabled {
 	// 	ctx, cancel := context.WithTimeout(context.Background(), influxTimeout)
@@ -183,157 +183,147 @@ func main() {
 				// 	return err
 				// }
 
-// 				for i := 0; i < 3; i++ {
-// 					reportTime := baseReportTime
-// 					if i == 0 {
-// 						reportTime = reportTime.Add(-5 * time.Minute)
-// 					}
-// 					if i == 2 {
-// 						reportTime = reportTime.Add(5 * time.Minute)
-// 					}
+				// 				for i := 0; i < 3; i++ {
+				// 					reportTime := baseReportTime
+				// 					if i == 0 {
+				// 						reportTime = reportTime.Add(-5 * time.Minute)
+				// 					}
+				// 					if i == 2 {
+				// 						reportTime = reportTime.Add(5 * time.Minute)
+				// 					}
 
-// 					currentTemp := float64(t.ExtendedRuntime.ActualTemperature[i]) / 10.0
-// 					currentHumidity := t.ExtendedRuntime.ActualHumidity[i]
-// 					heatSetPoint := float64(t.ExtendedRuntime.DesiredHeat[i]) / 10.0
-// 					coolSetPoint := float64(t.ExtendedRuntime.DesiredCool[i]) / 10.0
-// 					humiditySetPoint := t.ExtendedRuntime.DesiredHumidity[i]
-// 					demandMgmtOffset := float64(t.ExtendedRuntime.DmOffset[i]) / 10.0
-// 					hvacMode := t.ExtendedRuntime.HvacMode[i] // string :(
-// 					heatPump1RunSec := t.ExtendedRuntime.HeatPump1[i]
-// 					heatPump2RunSec := t.ExtendedRuntime.HeatPump1[i]
-// 					auxHeat1RunSec := t.ExtendedRuntime.AuxHeat1[i]
-// 					auxHeat2RunSec := t.ExtendedRuntime.AuxHeat2[i]
-// 					cool1RunSec := t.ExtendedRuntime.Cool1[i]
-// 					cool2RunSec := t.ExtendedRuntime.Cool2[i]
-// 					fanRunSec := t.ExtendedRuntime.Fan[i]
-// 					humidifierRunSec := t.ExtendedRuntime.Humidifier[i]
+				// 					currentTemp := float64(t.ExtendedRuntime.ActualTemperature[i]) / 10.0
+				// 					currentHumidity := t.ExtendedRuntime.ActualHumidity[i]
+				// 					heatSetPoint := float64(t.ExtendedRuntime.DesiredHeat[i]) / 10.0
+				// 					coolSetPoint := float64(t.ExtendedRuntime.DesiredCool[i]) / 10.0
+				// 					humiditySetPoint := t.ExtendedRuntime.DesiredHumidity[i]
+				// 					demandMgmtOffset := float64(t.ExtendedRuntime.DmOffset[i]) / 10.0
+				// 					hvacMode := t.ExtendedRuntime.HvacMode[i] // string :(
+				// 					heatPump1RunSec := t.ExtendedRuntime.HeatPump1[i]
+				// 					heatPump2RunSec := t.ExtendedRuntime.HeatPump1[i]
+				// 					auxHeat1RunSec := t.ExtendedRuntime.AuxHeat1[i]
+				// 					auxHeat2RunSec := t.ExtendedRuntime.AuxHeat2[i]
+				// 					cool1RunSec := t.ExtendedRuntime.Cool1[i]
+				// 					cool2RunSec := t.ExtendedRuntime.Cool2[i]
+				// 					fanRunSec := t.ExtendedRuntime.Fan[i]
+				// 					humidifierRunSec := t.ExtendedRuntime.Humidifier[i]
 
-// 					fmt.Printf("Thermostat conditions at %s:\n", reportTime)
-// 					fmt.Printf("\tcurrent temperature: %.1f degF\n\theat set point: %.1f degF\n\tcool set point: %.1f degF\n\tdemand management offset: %.1f\n",
-// 						currentTemp, heatSetPoint, coolSetPoint, demandMgmtOffset)
-// 					fmt.Printf("\tcurrent humidity: %d%%\n\thumidity set point: %d\n\tHVAC mode: %s\n",
-// 						currentHumidity, humiditySetPoint, hvacMode)
-// 					fmt.Printf("\tfan runtime: %d seconds\n\thumidifier runtime: %d seconds\n",
-// 						fanRunSec, humidifierRunSec)
-// 					fmt.Printf("\theat pump 1 runtime: %d seconds\n\theat pump 2 runtime: %d seconds\n",
-// 						heatPump1RunSec, heatPump2RunSec)
-// 					fmt.Printf("\theat 1 runtime: %d seconds\n\theat 2 runtime: %d seconds\n",
-// 						auxHeat1RunSec, auxHeat2RunSec)
-// 					fmt.Printf("\tcool 1 runtime: %d seconds\n\tcool 2 runtime: %d seconds\n",
-// 						cool1RunSec, cool2RunSec)
+				// 					fmt.Printf("Thermostat conditions at %s:\n", reportTime)
+				// 					fmt.Printf("\tcurrent temperature: %.1f degF\n\theat set point: %.1f degF\n\tcool set point: %.1f degF\n\tdemand management offset: %.1f\n",
+				// 						currentTemp, heatSetPoint, coolSetPoint, demandMgmtOffset)
+				// 					fmt.Printf("\tcurrent humidity: %d%%\n\thumidity set point: %d\n\tHVAC mode: %s\n",
+				// 						currentHumidity, humiditySetPoint, hvacMode)
+				// 					fmt.Printf("\tfan runtime: %d seconds\n\thumidifier runtime: %d seconds\n",
+				// 						fanRunSec, humidifierRunSec)
+				// 					fmt.Printf("\theat pump 1 runtime: %d seconds\n\theat pump 2 runtime: %d seconds\n",
+				// 						heatPump1RunSec, heatPump2RunSec)
+				// 					fmt.Printf("\theat 1 runtime: %d seconds\n\theat 2 runtime: %d seconds\n",
+				// 						auxHeat1RunSec, auxHeat2RunSec)
+				// 					fmt.Printf("\tcool 1 runtime: %d seconds\n\tcool 2 runtime: %d seconds\n",
+				// 						cool1RunSec, cool2RunSec)
 
-// 					if latestRuntimeInterval != lastWrittenRuntimeInterval {
-// 						if err := retry.Do(func() error {
-// 							// ctx, cancel := context.WithTimeout(context.Background(), influxTimeout)
-// 							// defer cancel()
-// 							fields := map[string]interface{}{
-// 								"temperature":        currentTemp,
-// 								"humidity":           currentHumidity,
-// 								"heat_set_point":     heatSetPoint,
-// 								"cool_set_point":     coolSetPoint,
-// 								"demand_mgmt_offset": demandMgmtOffset,
-// 								"fan_run_time":       fanRunSec,
-// 							}
-// 							if config.WriteHumidifier {
-// 								fields["humidity_set_point"] = humiditySetPoint
-// 								fields["humidifier_run_time"] = humidifierRunSec
-// 							}
-// 							if config.WriteAuxHeat1 {
-// 								fields["aux_heat_1_run_time"] = auxHeat1RunSec
-// 							}
-// 							if config.WriteAuxHeat2 {
-// 								fields["aux_heat_2_run_time"] = auxHeat2RunSec
-// 							}
-// 							if config.WriteHeatPump1 {
-// 								fields["heat_pump_1_run_time"] = heatPump1RunSec
-// 							}
-// 							if config.WriteHeatPump2 {
-// 								fields["heat_pump_2_run_time"] = heatPump2RunSec
-// 							}
-// 							if config.WriteCool1 {
-// 								fields["cool_1_run_time"] = cool1RunSec
-// 							}
-// 							if config.WriteCool2 {
-// 								fields["cool_2_run_time"] = cool2RunSec
-// 							}
+				// 					if latestRuntimeInterval != lastWrittenRuntimeInterval {
+				// 						if err := retry.Do(func() error {
+				// 							// ctx, cancel := context.WithTimeout(context.Background(), influxTimeout)
+				// 							// defer cancel()
+				// 							fields := map[string]interface{}{
+				// 								"temperature":        currentTemp,
+				// 								"humidity":           currentHumidity,
+				// 								"heat_set_point":     heatSetPoint,
+				// 								"cool_set_point":     coolSetPoint,
+				// 								"demand_mgmt_offset": demandMgmtOffset,
+				// 								"fan_run_time":       fanRunSec,
+				// 							}
+				// 							if config.WriteHumidifier {
+				// 								fields["humidity_set_point"] = humiditySetPoint
+				// 								fields["humidifier_run_time"] = humidifierRunSec
+				// 							}
+				// 							if config.WriteAuxHeat1 {
+				// 								fields["aux_heat_1_run_time"] = auxHeat1RunSec
+				// 							}
+				// 							if config.WriteAuxHeat2 {
+				// 								fields["aux_heat_2_run_time"] = auxHeat2RunSec
+				// 							}
+				// 							if config.WriteHeatPump1 {
+				// 								fields["heat_pump_1_run_time"] = heatPump1RunSec
+				// 							}
+				// 							if config.WriteHeatPump2 {
+				// 								fields["heat_pump_2_run_time"] = heatPump2RunSec
+				// 							}
+				// 							if config.WriteCool1 {
+				// 								fields["cool_1_run_time"] = cool1RunSec
+				// 							}
+				// 							if config.WriteCool2 {
+				// 								fields["cool_2_run_time"] = cool2RunSec
+				// 							}
 
-// 							fmt.Printf("%s %s %s %s %s \n",
-// 						t.Name, t.Identifier, t.ThermostatRev, t.ModelNumber, t.Brand)
+				// 							fmt.Printf("%s %s %s %s %s \n",
+				// 						t.Name, t.Identifier, t.ThermostatRev, t.ModelNumber, t.Brand)
 
-// 							// pts        = make([]client.Point, sampleSize)
+				// 							// pts        = make([]client.Point, sampleSize)
 
-// 							// var pts = influxclient.Point{
-// 							// 			Measurement: "ecobee_runtime_test1",
-// 							// 			Tags: map[string]string{
-// 							// 				"color": strconv.Itoa(rand.Intn(len(colors))),
-// 							// 				"shape": strconv.Itoa(rand.Intn(len(shapes))),
-// 							// 			},
-// 							// 			Fields: map[string]interface{}{
-// 							// 				"value": rand.Intn(sampleSize),
-// 							// 			},
-// 							// 			Time:      time.Now(),
-// 							// 			Precision: "s",
-// 							// 		}
+				// 							// var pts = influxclient.Point{
+				// 							// 			Measurement: "ecobee_runtime_test1",
+				// 							// 			Tags: map[string]string{
+				// 							// 				"color": strconv.Itoa(rand.Intn(len(colors))),
+				// 							// 				"shape": strconv.Itoa(rand.Intn(len(shapes))),
+				// 							// 			},
+				// 							// 			Fields: map[string]interface{}{
+				// 							// 				"value": rand.Intn(sampleSize),
+				// 							// 			},
+				// 							// 			Time:      time.Now(),
+				// 							// 			Precision: "s",
+				// 							// 		}
 
+				// 							var meta = map[string]string{"thermostat_name": t.Name,
+				// 							"thermostat_model": t.ModelNumber,
+				// 							"thermostat_brand": t.Brand,
+				// 							"device_id": fmt.Sprintf("ecobee-%s", t.Identifier),
+				// 							"receiver": "ecobee-influx-connector"};
 
-// 							var meta = map[string]string{"thermostat_name": t.Name,
-// 							"thermostat_model": t.ModelNumber,
-// 							"thermostat_brand": t.Brand,
-// 							"device_id": fmt.Sprintf("ecobee-%s", t.Identifier),
-// 							"receiver": "ecobee-influx-connector"};
+				// 							fmt.Printf("\n%v\n", meta);
 
-// 							fmt.Printf("\n%v\n", meta);
+				// 							var pt, _ = influxclient.NewPoint("ecobee_runtime_test1", meta, fields, reportTime)
 
-// 							var pt, _ = influxclient.NewPoint("ecobee_runtime_test1", meta, fields, reportTime)
+				// fmt.Printf("\n%v\n", pt);
 
-// fmt.Printf("\n%v\n", pt);
+				// 	bp, _ := influxclient.NewBatchPoints(influxclient.BatchPointsConfig{Database: config.InfluxDatabase})
 
+				// 	bp.AddPoint(pt)
 
-// 	bp, _ := influxclient.NewBatchPoints(influxclient.BatchPointsConfig{Database: config.InfluxDatabase})
+				// err := influxClient.Write(bp);
+				// // err != nil {
+				// // 		t.Fatalf("Unexpected error during Write: %v", err)
+				// // 	}
 
-// 	bp.AddPoint(pt)
-
-
-// err := influxClient.Write(bp);
-// // err != nil {
-// // 		t.Fatalf("Unexpected error during Write: %v", err)
-// // 	}
-
-
-// 							// err := influxWriteApi.WritePoint(ctx,
-// 							// 	influxdb2.NewPoint(
-// 							// 		"ecobee_runtime",
-// 							// 		map[string]string{thermostatNameTag: t.Name}, // tags
-// 							// 		fields,
-// 							// 		reportTime,
-// 							// 	))
-// 							if err != nil {
-// 								fmt.Printf("ERROR writing\n")
-// 								fmt.Printf("Unexpected error during Write: %v", err)
-// 								return err
-// 							}
-// 							fmt.Printf("write good\n")
-// 							return nil
-// 						}, retry.Attempts(2)); err != nil {
-// 							return err
-// 						}
-// 					}
-// 				}
-// 				lastWrittenRuntimeInterval = latestRuntimeInterval
-
-
+				// 							// err := influxWriteApi.WritePoint(ctx,
+				// 							// 	influxdb2.NewPoint(
+				// 							// 		"ecobee_runtime",
+				// 							// 		map[string]string{thermostatNameTag: t.Name}, // tags
+				// 							// 		fields,
+				// 							// 		reportTime,
+				// 							// 	))
+				// 							if err != nil {
+				// 								fmt.Printf("ERROR writing\n")
+				// 								fmt.Printf("Unexpected error during Write: %v", err)
+				// 								return err
+				// 							}
+				// 							fmt.Printf("write good\n")
+				// 							return nil
+				// 						}, retry.Attempts(2)); err != nil {
+				// 							return err
+				// 						}
+				// 					}
+				// 				}
+				// 				lastWrittenRuntimeInterval = latestRuntimeInterval
 
 				report_data, rr_err := client.GetRuntimeReport(config.ThermostatID,
-config.WriteHumidifier, config.WriteAuxHeat1, config.WriteAuxHeat2,config.WriteHeatPump1,
-config.WriteHeatPump2, config.WriteCool1, config.WriteCool2)
+					config.WriteHumidifier, config.WriteAuxHeat1, config.WriteAuxHeat2, config.WriteHeatPump1,
+					config.WriteHeatPump2, config.WriteCool1, config.WriteCool2)
 
-
-				_  = rr_err
-
+				_ = rr_err
 
 				// fmt.Printf("\n\n%v\n\n", report_data);
-
-
 
 				for thermostat_id, entries := range report_data {
 
@@ -342,10 +332,9 @@ config.WriteHeatPump2, config.WriteCool1, config.WriteCool2)
 						// "thermostat_model": t.ModelNumber,
 						// "thermostat_brand": t.Brand,
 						"device_id": fmt.Sprintf("ecobee-%s", thermostat_id),
-						"receiver": "ecobee-influx-connector"};
+						"receiver":  "ecobee-influx-connector"}
 
 					bp, _ := influxclient.NewBatchPoints(influxclient.BatchPointsConfig{Database: config.InfluxDatabase})
-
 
 					// type abc struct {
 					// 	reportTime time.Time
@@ -360,15 +349,13 @@ config.WriteHeatPump2, config.WriteCool1, config.WriteCool2)
 					// }); ok {
 					if entries_ok, ok := entries.([]ecobee.RuntimeReportDataEntry); ok {
 
+						for _, entry := range entries_ok {
+							// for i := range len(entries) {
+							// entry := entries[i]
 
+							// fmt.Println(len(entry	))
 
-				     	for _, entry := range entries_ok {
-				     	// for i := range len(entries) {
-				     		// entry := entries[i]
-
-				     		// fmt.Println(len(entry	))
-
-				     		fields := map[string]interface{}{
+							fields := map[string]interface{}{
 								// "temperature":        currentTemp,
 								// "humidity":           currentHumidity,
 								// "heat_set_point":     heatSetPoint,
@@ -377,16 +364,14 @@ config.WriteHeatPump2, config.WriteCool1, config.WriteCool2)
 								// "fan_run_time":       fanRunSec,
 							}
 
-	// 0:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:0 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:0 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:0 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:45 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:300 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:270 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 com
+							// 0:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:0 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:0 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:0 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:45 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:300 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 compCool1:0 compHeat1:270 reportTime:2022-03-01 00:00:00 +0000 UTC] map[auxHeat1:0 com
 
 							// switch y := entry.(type) {
 							// case map[string]interface{}:
 
 							// if entry_ok, ok := entry.(map[string]interface{}); ok {
 
-
 							// var reportTime time.Time = time.Now()
-
 
 							for key, val := range entry.DataFields {
 								// fmt.Printf("key %v\n", key)
@@ -426,35 +411,23 @@ config.WriteHeatPump2, config.WriteCool1, config.WriteCool2)
 								// 	}
 								// }
 
-
 							}
 							// }
 
-
 							// default:
-						 //        fmt.Printf("unknown1\n")
+							//        fmt.Printf("unknown1\n")
 							// }
 
 							// fmt.Printf("%v", fields);
-
 
 							var pt, _ = influxclient.NewPoint("ecobee_runtime_test3", meta, fields, entry.ReportTime)
 							bp.AddPoint(pt)
 							// fmt.Printf("added point %v\n", entry.ReportTime);
 
+						}
+					}
 
-				      	}
-			      	}
-
-
-
-
-
-
-
-
-
-					err := influxClient.Write(bp);
+					err := influxClient.Write(bp)
 
 					if err != nil {
 						fmt.Printf("ERROR writing\n")
@@ -464,17 +437,6 @@ config.WriteHeatPump2, config.WriteCool1, config.WriteCool2)
 					fmt.Printf("runtime write good\n")
 
 				}
-
-
-
-
-
-
-
-
-
-
-
 
 				// assume t.LastModified for these:
 				sensorTime, err := time.Parse("2006-01-02 15:04:05", t.UtcTime)
@@ -566,7 +528,7 @@ config.WriteHeatPump2, config.WriteCool1, config.WriteCool2)
 						if config.AlwaysWriteWeather {
 							pointTime = time.Now()
 						}
-						_ = pointTime;
+						_ = pointTime
 						// err := influxWriteApi.WritePoint(ctx,
 						// 	influxdb2.NewPoint(
 						// 		"ecobee_weather",

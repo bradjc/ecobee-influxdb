@@ -221,39 +221,39 @@ type GetThermostatsResponse struct {
 
 type GetRuntimeReportRequest struct {
 	Selection Selection `json:"selection"`
-	StartDate string `json:"startDate"`
-	EndDate string `json:"endDate"`
-	Columns string `json:"columns"`
+	StartDate string    `json:"startDate"`
+	EndDate   string    `json:"endDate"`
+	Columns   string    `json:"columns"`
 }
 
 type RuntimeReportResponse struct {
-	StartDate string `json:"startDate"`
-	StartInterval int `json:"startInterval"`
-	EndDate string `json:"endDate"`
-	EndInterval int `json:"endInterval"`
-	Columns string `json:"columns"`
-	ReportList []Report `json:"reportList"`
-	SensorList []Sensor `json:"sensorList"`
+	StartDate     string   `json:"startDate"`
+	StartInterval int      `json:"startInterval"`
+	EndDate       string   `json:"endDate"`
+	EndInterval   int      `json:"endInterval"`
+	Columns       string   `json:"columns"`
+	ReportList    []Report `json:"reportList"`
+	SensorList    []Sensor `json:"sensorList"`
 }
 
 type Report struct {
-	ThermostatIdentifier     string `json:"thermostatIdentifier"`
-	RowCount           int `json:"rowCount"`
-	RowList  []string `json:"rowList"`
+	ThermostatIdentifier string   `json:"thermostatIdentifier"`
+	RowCount             int      `json:"rowCount"`
+	RowList              []string `json:"rowList"`
 }
 
 type Sensor struct {
-	ThermostatIdentifier     string `json:"thermostatIdentifier"`
-	Sensors           []SensorMetadata `json:"sensors"`
-	Columns  []string `json:"columns"`
-	Data  []string `json:"data"`
+	ThermostatIdentifier string           `json:"thermostatIdentifier"`
+	Sensors              []SensorMetadata `json:"sensors"`
+	Columns              []string         `json:"columns"`
+	Data                 []string         `json:"data"`
 }
 
 type SensorMetadata struct {
-	SensorId     string `json:"sensorId"`
-	SensorName     string `json:"sensorName"`
-	SensorType     string `json:"sensorType"`
-	SensorUsage     string `json:"sensorUsage"`
+	SensorId    string `json:"sensorId"`
+	SensorName  string `json:"sensorName"`
+	SensorType  string `json:"sensorType"`
+	SensorUsage string `json:"sensorUsage"`
 }
 
 type Page struct {
