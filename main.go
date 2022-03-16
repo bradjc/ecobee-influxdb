@@ -234,10 +234,18 @@ func main() {
 									fields["outdoor_temperature_°F"], _ = strconv.ParseFloat(val, 64)
 								} else if key == "outdoorHumidity" {
 									fields["outdoor_humidity_%"], _ = strconv.ParseFloat(val, 64)
-								} else if key == "hvacMode" {
+								} else if key == "HVACmode" {
 									fields["HVAC_mode"] = val
+								} else if key == "zoneClimate" {
+									fields["zone_climate"] = val
 								} else if key == "fan" {
 									fields["fan_run_time_s"], _ = strconv.Atoi(val)
+								} else if key == "wind" {
+									fields["wind_km/h"], _ = strconv.Atoi(val)
+								} else if key == "sky" {
+									fields["sky_cover"], _ = strconv.Atoi(val)
+								} else {
+									fmt.Printf("%v = %v\n", key, val);
 								}
 							}
 

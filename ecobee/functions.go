@@ -221,6 +221,9 @@ func (c *Client) GetRuntimeReport(
 		"outdoorHumidity",
 		"hvacMode",
 		"fan",
+		"sky",
+		"wind",
+		"zoneClimate",
 	}
 	if WriteHumidifier {
 		col_to_include = append(col_to_include, "humidifier")
